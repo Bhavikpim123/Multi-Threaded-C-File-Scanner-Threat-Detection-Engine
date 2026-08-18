@@ -30,9 +30,8 @@ void ThreadPool::stop() {
 
     running_ = false;
 
-    // Workers currently waiting on TaskQueue::pop()
-    // will be handled properly in the next step when
-    // we add shutdown support to TaskQueue.
+    taskQueue_.shutdown();
+
     for (auto& worker : workers_) {
         if (worker.joinable()) {
             worker.join();
@@ -42,18 +41,26 @@ void ThreadPool::stop() {
     workers_.clear();
 }
 
+void ThreadPool::submit(const ScanTask& task) {
+    taskQueue_.push(task);
+}
+
 void ThreadPool::workerLoop() {
     std::cout << "Worker thread started: "
               << std::this_thread::get_id()
               << '\n';
+	    while (true) {
+        std::optional<ScanTask> task = taskQueue_.pop();
 
-    while (running_) {
-        // Task processing will be implemented next.
-        //
-        // We intentionally don't call taskQueue_.pop()
-        // yet because TaskQueue currently waits forever
-        // when the queue is empty.
-        std::this_thread::yield();
+        if (!task.has_value()) {
+            break;
+        }
+
+        std::cout << "Worker "
+                  << std::this_thread::get_id()
+                  << " processing: "
+                  << task->filePath
+                  << '\n';
     }
 
     std::cout << "Worker thread stopped: "

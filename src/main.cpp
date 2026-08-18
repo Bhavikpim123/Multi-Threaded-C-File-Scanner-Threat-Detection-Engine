@@ -1,9 +1,8 @@
 #include "FileScanner.hpp"
-#include "TaskQueue.hpp"
 #include "ThreadPool.hpp"
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include <thread>
 
 int main(int argc, char* argv[]) {
@@ -18,32 +17,25 @@ int main(int argc, char* argv[]) {
 
     const auto tasks = scanner.discoverFiles(argv[1]);
 
-    TaskQueue taskQueue;
-
-    for (const auto& task : tasks) {
-        taskQueue.push(task);
-    }
-
-    std::cout << "Created " << tasks.size()
-              << " scan tasks.\n\n";
-
-    while (!taskQueue.empty()) {
-        const ScanTask task = taskQueue.pop();
-
-        std::cout << "Queued task:\n";
-        std::cout << "  File: " << task.filePath << '\n';
-        std::cout << "  Size: " << task.fileSize << " bytes\n\n";
-    }
-
-    std::cout << "Starting thread pool...\n";
+    std::cout << "Discovered "
+              << tasks.size()
+              << " files.\n\n";
 
     ThreadPool pool(4);
+
     pool.start();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    for (const auto& task : tasks) {
+        pool.submit(task);
+    }
 
-    std::cout << "Stopping thread pool...\n";
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds(100)
+    );
+
     pool.stop();
+
+    std::cout << "\nAll scan tasks processed.\n";
 
     return 0;
 }

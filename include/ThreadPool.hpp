@@ -17,6 +17,8 @@ public:
 
     void stop();
 
+    void submit(const ScanTask& task);
+
 private:
     void workerLoop();
 
