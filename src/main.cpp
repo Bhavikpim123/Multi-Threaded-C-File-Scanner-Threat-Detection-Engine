@@ -1,4 +1,5 @@
 #include "FileScanner.hpp"
+#include "ResultCollector.hpp"
 #include "SignatureDatabase.hpp"
 #include "ThreadPool.hpp"
 
@@ -24,7 +25,13 @@ int main(int argc, char* argv[]) {
         "data/signatures.txt"
     );
 
-    ThreadPool pool(4, signatureDatabase);
+    ResultCollector resultCollector;
+
+    ThreadPool pool(
+        4,
+        signatureDatabase,
+        resultCollector
+    );
 
     pool.start();
 
@@ -34,7 +41,34 @@ int main(int argc, char* argv[]) {
 
     pool.stop();
 
-    std::cout << "\nAll scan tasks processed.\n";
+    const auto results = resultCollector.results();
+
+    std::size_t safeCount = 0;
+    std::size_t suspiciousCount = 0;
+    std::size_t errorCount = 0;
+
+    for (const auto& result : results) {
+        switch (result.status) {
+            case ScanStatus::Safe:
+                ++safeCount;
+                break;
+
+            case ScanStatus::Suspicious:
+                ++suspiciousCount;
+                break;
+
+            case ScanStatus::Error:
+                ++errorCount;
+                break;
+        }
+    }
+
+    std::cout << "\n========== Scan Report ==========\n";
+    std::cout << "Files scanned: " << results.size() << '\n';
+    std::cout << "Safe:          " << safeCount << '\n';
+    std::cout << "Suspicious:    " << suspiciousCount << '\n';
+    std::cout << "Errors:        " << errorCount << '\n';
+    std::cout << "=================================\n";
 
     return 0;
 }

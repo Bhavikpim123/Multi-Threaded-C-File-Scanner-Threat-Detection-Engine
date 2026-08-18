@@ -19,6 +19,7 @@ add_executable(file_scanner
     src/FileAnalyzer.cpp
     src/FileHasher.cpp
     src/SignatureDatabase.cpp
+    src/ResultCollector.cpp
 )
 
 target_include_directories(file_scanner PRIVATE include)

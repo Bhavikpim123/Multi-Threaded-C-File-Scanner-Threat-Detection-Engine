@@ -4,8 +4,10 @@
 
 ThreadPool::ThreadPool(
     std::size_t threadCount,
-    const SignatureDatabase& signatureDatabase)
+    const SignatureDatabase& signatureDatabase,
+    ResultCollector& resultCollector)
     : analyzer_(signatureDatabase),
+      resultCollector_(resultCollector),
       running_(false),
       threadCount_(threadCount) {
 }
@@ -60,6 +62,8 @@ void ThreadPool::workerLoop() {
         }
 
         const ScanResult result = analyzer_.analyze(*task);
+
+        resultCollector_.add(result);
 
         const char* status = "ERROR";
 

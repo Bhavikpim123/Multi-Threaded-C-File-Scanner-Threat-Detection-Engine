@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FileAnalyzer.hpp"
+#include "ResultCollector.hpp"
 #include "SignatureDatabase.hpp"
 #include "TaskQueue.hpp"
 
@@ -13,7 +14,8 @@ class ThreadPool {
 public:
     ThreadPool(
         std::size_t threadCount,
-        const SignatureDatabase& signatureDatabase);
+        const SignatureDatabase& signatureDatabase,
+        ResultCollector& resultCollector);
 
     ~ThreadPool();
 
@@ -28,6 +30,7 @@ private:
 
     TaskQueue taskQueue_;
     FileAnalyzer analyzer_;
+    ResultCollector& resultCollector_;
     std::vector<std::thread> workers_;
     std::atomic<bool> running_;
     std::size_t threadCount_;
