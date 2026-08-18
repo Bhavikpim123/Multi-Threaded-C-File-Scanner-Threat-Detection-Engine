@@ -49,6 +49,15 @@ add_executable(ipc_scanner
     src/SignatureDetectionStrategy.cpp
 )
 
+add_executable(shared_memory_scanner
+    shared_memory/shared_memory_main.cpp
+    src/SharedMemoryController.cpp
+    src/FileAnalyzer.cpp
+    src/FileHasher.cpp
+    src/SignatureDatabase.cpp
+    src/SignatureDetectionStrategy.cpp
+)
+
 target_include_directories(file_scanner PRIVATE include)
 target_link_libraries(file_scanner PRIVATE OpenSSL::Crypto pthread)
 
@@ -60,3 +69,6 @@ target_link_libraries(scanner_client PRIVATE pthread)
 
 target_include_directories(ipc_scanner PRIVATE include)
 target_link_libraries(ipc_scanner PRIVATE OpenSSL::Crypto pthread)
+
+target_include_directories(shared_memory_scanner PRIVATE include)
+target_link_libraries(shared_memory_scanner PRIVATE OpenSSL::Crypto pthread rt)
