@@ -25,6 +25,10 @@ public:
 
     const ScannerMetrics& metrics() const;
 
+    std::size_t queueSize() const;
+
+    std::size_t queueCapacity() const;
+
 private:
     void workerLoop();
 

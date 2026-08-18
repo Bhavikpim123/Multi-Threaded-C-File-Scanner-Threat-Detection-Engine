@@ -137,6 +137,11 @@ void NetworkServer::start() {
     threadPool_.start();
 
     std::cout
+        << "Queue capacity: "
+        << threadPool_.queueCapacity()
+        << '\n';
+
+    std::cout
         << "Concurrent scanner server listening on port "
         << port_
         << '\n';

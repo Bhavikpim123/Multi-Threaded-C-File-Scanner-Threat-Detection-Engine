@@ -243,3 +243,15 @@ const ScannerMetrics&
 NetworkThreadPool::metrics() const {
     return metrics_;
 }
+
+std::size_t
+NetworkThreadPool::queueSize() const {
+
+    return taskQueue_.size();
+}
+
+std::size_t
+NetworkThreadPool::queueCapacity() const {
+
+    return taskQueue_.capacity();
+}

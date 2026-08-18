@@ -2,7 +2,7 @@
 
 NetworkTaskQueue::NetworkTaskQueue(
     std::size_t maxSize)
-    : maxSize_(maxSize) {
+    : tasks_(maxSize) {
 }
 
 bool NetworkTaskQueue::push(
@@ -15,14 +15,20 @@ bool NetworkTaskQueue::push(
         lock,
         [this] {
             return shutdown_ ||
-                   tasks_.size() < maxSize_;
+                   !tasks_.full();
         });
 
     if (shutdown_) {
         return false;
     }
 
-    tasks_.push(task);
+    const bool inserted =
+        tasks_.push(
+            std::move(task));
+
+    if (!inserted) {
+        return false;
+    }
 
     lock.unlock();
 
@@ -48,9 +54,8 @@ NetworkTaskQueue::pop() {
         return std::nullopt;
     }
 
-    NetworkTask task = tasks_.front();
-
-    tasks_.pop();
+    auto task =
+        tasks_.pop();
 
     lock.unlock();
 
@@ -69,6 +74,7 @@ void NetworkTaskQueue::shutdown() {
     }
 
     notEmpty_.notify_all();
+
     notFull_.notify_all();
 }
 
@@ -86,4 +92,12 @@ std::size_t NetworkTaskQueue::size() const {
         mutex_);
 
     return tasks_.size();
+}
+
+std::size_t NetworkTaskQueue::capacity() const {
+
+    std::lock_guard<std::mutex> lock(
+        mutex_);
+
+    return tasks_.capacity();
 }

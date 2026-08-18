@@ -1,12 +1,12 @@
 #pragma once
 
+#include "BoundedRingBuffer.hpp"
 #include "NetworkTask.hpp"
 
 #include <condition_variable>
 #include <cstddef>
 #include <mutex>
 #include <optional>
-#include <queue>
 
 class NetworkTaskQueue {
 public:
@@ -23,14 +23,15 @@ public:
 
     std::size_t size() const;
 
-private:
-    std::queue<NetworkTask> tasks_;
+    std::size_t capacity() const;
 
-    std::size_t maxSize_;
+private:
+    BoundedRingBuffer<NetworkTask> tasks_;
 
     mutable std::mutex mutex_;
 
     std::condition_variable notEmpty_;
+
     std::condition_variable notFull_;
 
     bool shutdown_ = false;
