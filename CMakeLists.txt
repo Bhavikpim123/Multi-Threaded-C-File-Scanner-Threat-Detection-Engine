@@ -39,6 +39,16 @@ add_executable(scanner_client
     src/NetworkClient.cpp
 )
 
+add_executable(ipc_scanner
+    ipc/ipc_main.cpp
+    src/IPCController.cpp
+    src/IPCWorker.cpp
+    src/FileAnalyzer.cpp
+    src/FileHasher.cpp
+    src/SignatureDatabase.cpp
+    src/SignatureDetectionStrategy.cpp
+)
+
 target_include_directories(file_scanner PRIVATE include)
 target_link_libraries(file_scanner PRIVATE OpenSSL::Crypto pthread)
 
@@ -47,3 +57,6 @@ target_link_libraries(scanner_server PRIVATE OpenSSL::Crypto pthread)
 
 target_include_directories(scanner_client PRIVATE include)
 target_link_libraries(scanner_client PRIVATE pthread)
+
+target_include_directories(ipc_scanner PRIVATE include)
+target_link_libraries(ipc_scanner PRIVATE OpenSSL::Crypto pthread)
