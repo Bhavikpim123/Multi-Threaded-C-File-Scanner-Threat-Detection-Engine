@@ -18,6 +18,7 @@ add_executable(file_scanner
     src/ThreadPool.cpp
     src/FileAnalyzer.cpp
     src/FileHasher.cpp
+    src/SignatureDatabase.cpp
 )
 
 target_include_directories(file_scanner PRIVATE include)
