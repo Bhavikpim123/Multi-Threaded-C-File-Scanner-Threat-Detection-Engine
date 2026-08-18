@@ -19,4 +19,6 @@ struct ScanResult {
     std::string fileHash;
     ScanStatus status;
     std::chrono::microseconds scanDuration;
+    std::chrono::microseconds hashDuration;
+    std::chrono::microseconds detectionDuration;
 };

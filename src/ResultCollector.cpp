@@ -39,3 +39,37 @@ ResultCollector::totalAnalysisTime() const {
 
     return total;
 }
+
+std::chrono::microseconds
+ResultCollector::averageHashTime() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    if (results_.empty()) {
+        return std::chrono::microseconds{0};
+    }
+
+    std::chrono::microseconds total{0};
+
+    for (const auto& result : results_) {
+        total += result.hashDuration;
+    }
+
+    return total / results_.size();
+}
+
+std::chrono::microseconds
+ResultCollector::averageDetectionTime() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    if (results_.empty()) {
+        return std::chrono::microseconds{0};
+    }
+
+    std::chrono::microseconds total{0};
+
+    for (const auto& result : results_) {
+        total += result.detectionDuration;
+    }
+
+    return total / results_.size();
+}

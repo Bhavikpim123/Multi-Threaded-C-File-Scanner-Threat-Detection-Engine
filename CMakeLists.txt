@@ -72,3 +72,18 @@ target_link_libraries(ipc_scanner PRIVATE OpenSSL::Crypto pthread)
 
 target_include_directories(shared_memory_scanner PRIVATE include)
 target_link_libraries(shared_memory_scanner PRIVATE OpenSSL::Crypto pthread rt)
+
+add_executable(benchmark_scanner
+    benchmark/benchmark_main.cpp
+    src/FileScanner.cpp
+    src/TaskQueue.cpp
+    src/ThreadPool.cpp
+    src/FileAnalyzer.cpp
+    src/FileHasher.cpp
+    src/SignatureDatabase.cpp
+    src/SignatureDetectionStrategy.cpp
+    src/ResultCollector.cpp
+)
+target_include_directories(benchmark_scanner PRIVATE include)
+target_compile_definitions(benchmark_scanner PRIVATE BENCHMARK_MODE)
+target_link_libraries(benchmark_scanner PRIVATE OpenSSL::Crypto pthread)

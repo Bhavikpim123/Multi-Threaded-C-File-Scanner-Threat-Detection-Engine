@@ -18,6 +18,8 @@ public:
 
     std::uintmax_t totalBytes() const;
     std::chrono::microseconds totalAnalysisTime() const;
+    std::chrono::microseconds averageHashTime() const;
+    std::chrono::microseconds averageDetectionTime() const;
 
 private:
     mutable std::mutex mutex_;

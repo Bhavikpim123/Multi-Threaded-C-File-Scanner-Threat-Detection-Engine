@@ -35,10 +35,16 @@ ScanResult FileAnalyzer::analyze(
         return result;
     }
 
+    auto stepStart = std::chrono::steady_clock::now();
     result.fileHash = hasher_.calculateHash(task.filePath);
+    auto stepEnd = std::chrono::steady_clock::now();
+    result.hashDuration = std::chrono::duration_cast<std::chrono::microseconds>(stepEnd - stepStart);
 
+    stepStart = std::chrono::steady_clock::now();
     result.status =
         detectionStrategy_.detect(result.fileHash);
+    stepEnd = std::chrono::steady_clock::now();
+    result.detectionDuration = std::chrono::duration_cast<std::chrono::microseconds>(stepEnd - stepStart);
 
     const auto end = std::chrono::steady_clock::now();
 

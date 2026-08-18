@@ -51,9 +51,11 @@ void ThreadPool::submit(const ScanTask& task) {
 }
 
 void ThreadPool::workerLoop() {
+#ifndef BENCHMARK_MODE
     std::cout << "Worker thread started: "
               << std::this_thread::get_id()
               << '\n';
+#endif
 	    while (true) {
         std::optional<ScanTask> task = taskQueue_.pop();
 
@@ -81,6 +83,7 @@ void ThreadPool::workerLoop() {
                 break;
         }
 
+#ifndef BENCHMARK_MODE
         std::cout << "Worker "
                   << std::this_thread::get_id()
                   << " analyzed: "
@@ -100,9 +103,12 @@ void ThreadPool::workerLoop() {
                   << result.scanDuration.count()
                   << " us"
                   << '\n';
+#endif
     }
 
+#ifndef BENCHMARK_MODE
     std::cout << "Worker thread stopped: "
               << std::this_thread::get_id()
               << '\n';
+#endif
 }
