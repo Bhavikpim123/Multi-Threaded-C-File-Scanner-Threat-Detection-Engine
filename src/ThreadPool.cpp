@@ -56,10 +56,22 @@ void ThreadPool::workerLoop() {
             break;
         }
 
+        const ScanResult result = analyzer_.analyze(*task);
+
         std::cout << "Worker "
                   << std::this_thread::get_id()
-                  << " processing: "
-                  << task->filePath
+                  << " analyzed: "
+                  << result.filePath
+                  << " | Size: "
+                  << result.fileSize
+                  << " bytes"
+                  << " | Extension: "
+                  << result.extension
+                  << " | Readable: "
+                  << (result.readable ? "yes" : "no")
+                  << " | Time: "
+                  << result.scanDuration.count()
+                  << " us"
                   << '\n';
     }
 

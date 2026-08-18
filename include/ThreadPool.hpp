@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FileAnalyzer.hpp"
 #include "TaskQueue.hpp"
 
 #include <atomic>
@@ -23,6 +24,7 @@ private:
     void workerLoop();
 
     TaskQueue taskQueue_;
+    FileAnalyzer analyzer_;
     std::vector<std::thread> workers_;
     std::atomic<bool> running_;
     std::size_t threadCount_;
