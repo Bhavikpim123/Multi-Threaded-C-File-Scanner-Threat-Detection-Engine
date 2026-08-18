@@ -12,6 +12,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(file_scanner
     src/main.cpp
     src/FileScanner.cpp
+    src/TaskQueue.cpp
 )
 
 target_include_directories(file_scanner PRIVATE include)
