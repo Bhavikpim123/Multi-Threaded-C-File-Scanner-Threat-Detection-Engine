@@ -3,10 +3,10 @@
 #include "SignatureDetectionStrategy.hpp"
 
 #include <cstdint>
-#include <iostream>
 
 int main() {
     constexpr std::uint16_t port = 9090;
+    constexpr std::size_t workerCount = 4;
 
     SignatureDatabase database(
         "data/signatures.txt"
@@ -18,7 +18,8 @@ int main() {
 
     NetworkServer server(
         port,
-        strategy
+        strategy,
+        workerCount
     );
 
     server.start();

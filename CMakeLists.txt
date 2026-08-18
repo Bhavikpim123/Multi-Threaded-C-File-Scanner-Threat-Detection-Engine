@@ -26,6 +26,8 @@ add_executable(file_scanner
 add_executable(scanner_server
     server/server_main.cpp
     src/NetworkServer.cpp
+    src/NetworkThreadPool.cpp
+    src/NetworkTaskQueue.cpp
     src/FileAnalyzer.cpp
     src/FileHasher.cpp
     src/SignatureDatabase.cpp
