@@ -3,6 +3,7 @@
 #include "SignatureDatabase.hpp"
 #include "ThreadPool.hpp"
 
+#include <chrono>
 #include <iostream>
 
 int main(int argc, char* argv[]) {
@@ -33,6 +34,8 @@ int main(int argc, char* argv[]) {
         resultCollector
     );
 
+    const auto scanStart = std::chrono::steady_clock::now();
+
     pool.start();
 
     for (const auto& task : tasks) {
@@ -40,6 +43,13 @@ int main(int argc, char* argv[]) {
     }
 
     pool.stop();
+
+    const auto scanEnd = std::chrono::steady_clock::now();
+
+    const auto totalScanTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(
+            scanEnd - scanStart
+        );
 
     const auto results = resultCollector.results();
 
@@ -68,6 +78,42 @@ int main(int argc, char* argv[]) {
     std::cout << "Safe:          " << safeCount << '\n';
     std::cout << "Suspicious:    " << suspiciousCount << '\n';
     std::cout << "Errors:        " << errorCount << '\n';
+    std::cout << "=================================\n";
+
+    const auto totalBytes = resultCollector.totalBytes();
+
+    const double elapsedSeconds =
+        totalScanTime.count() / 1'000'000.0;
+
+    const double megabytes =
+        static_cast<double>(totalBytes) / (1024.0 * 1024.0);
+
+    const double throughput =
+        elapsedSeconds > 0.0
+            ? megabytes / elapsedSeconds
+            : 0.0;
+
+    std::cout << "\n========== Performance ==========\n";
+
+    std::cout << "Total bytes:       "
+              << totalBytes
+              << '\n';
+
+    std::cout << "Total scan time:   "
+              << totalScanTime.count()
+              << " us\n";
+
+    std::cout << "Average file time: "
+              << (tasks.empty()
+                      ? 0
+                      : totalScanTime.count() /
+                            static_cast<long long>(tasks.size()))
+              << " us\n";
+
+    std::cout << "Throughput:        "
+              << throughput
+              << " MB/s\n";
+
     std::cout << "=================================\n";
 
     return 0;

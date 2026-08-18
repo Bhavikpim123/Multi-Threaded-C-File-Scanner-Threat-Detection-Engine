@@ -14,3 +14,28 @@ std::size_t ResultCollector::size() const {
     std::lock_guard<std::mutex> lock(mutex_);
     return results_.size();
 }
+
+std::uintmax_t ResultCollector::totalBytes() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    std::uintmax_t total = 0;
+
+    for (const auto& result : results_) {
+        total += result.fileSize;
+    }
+
+    return total;
+}
+
+std::chrono::microseconds
+ResultCollector::totalAnalysisTime() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    std::chrono::microseconds total{0};
+
+    for (const auto& result : results_) {
+        total += result.scanDuration;
+    }
+
+    return total;
+}

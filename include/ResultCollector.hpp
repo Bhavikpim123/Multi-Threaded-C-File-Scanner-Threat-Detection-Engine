@@ -2,7 +2,9 @@
 
 #include "ScanResult.hpp"
 
+#include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <mutex>
 #include <vector>
 
@@ -13,6 +15,9 @@ public:
     std::vector<ScanResult> results() const;
 
     std::size_t size() const;
+
+    std::uintmax_t totalBytes() const;
+    std::chrono::microseconds totalAnalysisTime() const;
 
 private:
     mutable std::mutex mutex_;
