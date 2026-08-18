@@ -1,9 +1,7 @@
 #include "FileScanner.hpp"
-#include "ThreadPool.hpp"
+#include "FileAnalyzer.hpp"
 
-#include <chrono>
 #include <iostream>
-#include <thread>
 
 int main(int argc, char* argv[]) {
     std::cout << "C++ File Scanner Engine\n\n";
@@ -21,21 +19,29 @@ int main(int argc, char* argv[]) {
               << tasks.size()
               << " files.\n\n";
 
-    ThreadPool pool(4);
-
-    pool.start();
+    FileAnalyzer analyzer;
 
     for (const auto& task : tasks) {
-        pool.submit(task);
+        const ScanResult result = analyzer.analyze(task);
+
+        std::cout << "File: "
+                  << result.filePath << '\n';
+
+        std::cout << "  Size: "
+                  << result.fileSize
+                  << " bytes\n";
+
+        std::cout << "  Extension: "
+                  << result.extension << '\n';
+
+        std::cout << "  Readable: "
+                  << (result.readable ? "yes" : "no")
+                  << '\n';
+
+        std::cout << "  Scan time: "
+                  << result.scanDuration.count()
+                  << " us\n\n";
     }
-
-    std::this_thread::sleep_for(
-        std::chrono::milliseconds(100)
-    );
-
-    pool.stop();
-
-    std::cout << "\nAll scan tasks processed.\n";
 
     return 0;
 }

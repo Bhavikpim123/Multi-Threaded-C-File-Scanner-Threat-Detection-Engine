@@ -14,6 +14,7 @@ add_executable(file_scanner
     src/FileScanner.cpp
     src/TaskQueue.cpp
     src/ThreadPool.cpp
+    src/FileAnalyzer.cpp
 )
 
 target_include_directories(file_scanner PRIVATE include)
