@@ -4,9 +4,9 @@
 
 ThreadPool::ThreadPool(
     std::size_t threadCount,
-    const SignatureDatabase& signatureDatabase,
+    const DetectionStrategy& detectionStrategy,
     ResultCollector& resultCollector)
-    : analyzer_(signatureDatabase),
+    : analyzer_(detectionStrategy),
       resultCollector_(resultCollector),
       running_(false),
       threadCount_(threadCount) {

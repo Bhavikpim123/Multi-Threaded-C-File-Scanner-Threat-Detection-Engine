@@ -4,8 +4,8 @@
 #include <fstream>
 
 FileAnalyzer::FileAnalyzer(
-    const SignatureDatabase& signatureDatabase)
-    : signatureDatabase_(signatureDatabase) {
+    const DetectionStrategy& detectionStrategy)
+    : detectionStrategy_(detectionStrategy) {
 }
 
 ScanResult FileAnalyzer::analyze(
@@ -37,13 +37,8 @@ ScanResult FileAnalyzer::analyze(
 
     result.fileHash = hasher_.calculateHash(task.filePath);
 
-    if (result.fileHash.empty()) {
-        result.status = ScanStatus::Error;
-    } else if (signatureDatabase_.contains(result.fileHash)) {
-        result.status = ScanStatus::Suspicious;
-    } else {
-        result.status = ScanStatus::Safe;
-    }
+    result.status =
+        detectionStrategy_.detect(result.fileHash);
 
     const auto end = std::chrono::steady_clock::now();
 

@@ -1,6 +1,7 @@
 #include "FileScanner.hpp"
 #include "ResultCollector.hpp"
 #include "SignatureDatabase.hpp"
+#include "SignatureDetectionStrategy.hpp"
 #include "ThreadPool.hpp"
 
 #include <chrono>
@@ -26,11 +27,15 @@ int main(int argc, char* argv[]) {
         "data/signatures.txt"
     );
 
+    SignatureDetectionStrategy detectionStrategy(
+        signatureDatabase
+    );
+
     ResultCollector resultCollector;
 
     ThreadPool pool(
         4,
-        signatureDatabase,
+        detectionStrategy,
         resultCollector
     );
 

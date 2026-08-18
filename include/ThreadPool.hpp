@@ -1,8 +1,8 @@
 #pragma once
 
+#include "DetectionStrategy.hpp"
 #include "FileAnalyzer.hpp"
 #include "ResultCollector.hpp"
-#include "SignatureDatabase.hpp"
 #include "TaskQueue.hpp"
 
 #include <atomic>
@@ -14,7 +14,7 @@ class ThreadPool {
 public:
     ThreadPool(
         std::size_t threadCount,
-        const SignatureDatabase& signatureDatabase,
+        const DetectionStrategy& detectionStrategy,
         ResultCollector& resultCollector);
 
     ~ThreadPool();

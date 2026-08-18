@@ -19,6 +19,7 @@ add_executable(file_scanner
     src/FileAnalyzer.cpp
     src/FileHasher.cpp
     src/SignatureDatabase.cpp
+    src/SignatureDetectionStrategy.cpp
     src/ResultCollector.cpp
 )
 
