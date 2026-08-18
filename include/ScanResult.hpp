@@ -10,5 +10,6 @@ struct ScanResult {
     std::uintmax_t fileSize;
     std::string extension;
     bool readable;
+    std::string fileHash;
     std::chrono::microseconds scanDuration;
 };

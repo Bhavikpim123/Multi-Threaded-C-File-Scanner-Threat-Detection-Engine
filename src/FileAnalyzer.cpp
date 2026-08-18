@@ -14,6 +14,10 @@ ScanResult FileAnalyzer::analyze(const ScanTask& task) const {
     std::ifstream file(task.filePath, std::ios::binary);
     result.readable = file.good();
 
+    if (result.readable) {
+        result.fileHash = hasher_.calculateHash(task.filePath);
+    }
+
     const auto end = std::chrono::steady_clock::now();
 
     result.scanDuration =

@@ -69,6 +69,8 @@ void ThreadPool::workerLoop() {
                   << result.extension
                   << " | Readable: "
                   << (result.readable ? "yes" : "no")
+                  << " | SHA-256: "
+                  << result.fileHash
                   << " | Time: "
                   << result.scanDuration.count()
                   << " us"
