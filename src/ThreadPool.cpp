@@ -2,8 +2,11 @@
 
 #include <iostream>
 
-ThreadPool::ThreadPool(std::size_t threadCount)
-    : running_(false),
+ThreadPool::ThreadPool(
+    std::size_t threadCount,
+    const SignatureDatabase& signatureDatabase)
+    : analyzer_(signatureDatabase),
+      running_(false),
       threadCount_(threadCount) {
 }
 
@@ -58,6 +61,22 @@ void ThreadPool::workerLoop() {
 
         const ScanResult result = analyzer_.analyze(*task);
 
+        const char* status = "ERROR";
+
+        switch (result.status) {
+            case ScanStatus::Safe:
+                status = "SAFE";
+                break;
+
+            case ScanStatus::Suspicious:
+                status = "SUSPICIOUS";
+                break;
+
+            case ScanStatus::Error:
+                status = "ERROR";
+                break;
+        }
+
         std::cout << "Worker "
                   << std::this_thread::get_id()
                   << " analyzed: "
@@ -71,6 +90,8 @@ void ThreadPool::workerLoop() {
                   << (result.readable ? "yes" : "no")
                   << " | SHA-256: "
                   << result.fileHash
+                  << " | Status: "
+                  << status
                   << " | Time: "
                   << result.scanDuration.count()
                   << " us"

@@ -1,4 +1,5 @@
 #include "FileScanner.hpp"
+#include "SignatureDatabase.hpp"
 #include "ThreadPool.hpp"
 
 #include <iostream>
@@ -19,7 +20,11 @@ int main(int argc, char* argv[]) {
               << tasks.size()
               << " files.\n\n";
 
-    ThreadPool pool(4);
+    SignatureDatabase signatureDatabase(
+        "data/signatures.txt"
+    );
+
+    ThreadPool pool(4, signatureDatabase);
 
     pool.start();
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FileAnalyzer.hpp"
+#include "SignatureDatabase.hpp"
 #include "TaskQueue.hpp"
 
 #include <atomic>
@@ -10,7 +11,9 @@
 
 class ThreadPool {
 public:
-    explicit ThreadPool(std::size_t threadCount);
+    ThreadPool(
+        std::size_t threadCount,
+        const SignatureDatabase& signatureDatabase);
 
     ~ThreadPool();
 
