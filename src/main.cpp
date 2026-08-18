@@ -2,20 +2,19 @@
 #include "FileScanner.hpp"
 
 int main(int argc, char* argv[]) {
-    std::cout << "C++ File Scanner Engine" << std::endl;
+    std::cout << "C++ File Scanner Engine\n\n";
 
     FileScanner scanner;
     std::string scanPath = (argc > 1) ? argv[1] : ".";
     
-    std::cout << "Scanning directory: " << scanPath << std::endl;
-    auto files = scanner.discoverFiles(scanPath);
+    std::cout << "Scanning directory: " << scanPath << "\n\n";
+    auto tasks = scanner.discoverFiles(scanPath);
     
-    std::cout << "Discovered " << files.size() << " files." << std::endl;
-    for (size_t i = 0; i < files.size() && i < 5; ++i) {
-        std::cout << " - " << files[i] << std::endl;
-    }
-    if (files.size() > 5) {
-        std::cout << " - ... and " << (files.size() - 5) << " more." << std::endl;
+    std::cout << "Created " << tasks.size() << " scan tasks.\n\n";
+    for (size_t i = 0; i < tasks.size(); ++i) {
+        std::cout << "Task " << (i + 1) << "\n";
+        std::cout << "  File: " << tasks[i].filePath.string() << "\n";
+        std::cout << "  Size: " << tasks[i].fileSize << " bytes\n\n";
     }
 
     return 0;
