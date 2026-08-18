@@ -2,6 +2,7 @@
 
 #include "FileAnalyzer.hpp"
 #include "NetworkTaskQueue.hpp"
+#include "ScannerMetrics.hpp"
 
 #include <cstddef>
 #include <thread>
@@ -11,20 +12,24 @@ class NetworkThreadPool {
 public:
     NetworkThreadPool(
         std::size_t threadCount,
+        std::size_t queueSize,
         const DetectionStrategy& detectionStrategy);
 
     ~NetworkThreadPool();
 
     void start();
 
-    void submit(int clientSocket);
+    bool submit(int clientSocket);
 
     void stop();
+
+    const ScannerMetrics& metrics() const;
 
 private:
     void workerLoop();
 
-    void handleClient(int clientSocket);
+    void handleClient(
+        int clientSocket);
 
     NetworkTaskQueue taskQueue_;
 
@@ -34,5 +39,7 @@ private:
 
     std::size_t threadCount_;
 
-    bool running_;
+    bool running_ = false;
+
+    ScannerMetrics metrics_;
 };

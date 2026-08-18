@@ -3,15 +3,16 @@
 #include "DetectionStrategy.hpp"
 #include "NetworkThreadPool.hpp"
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 class NetworkServer {
 public:
     NetworkServer(
         std::uint16_t port,
         const DetectionStrategy& detectionStrategy,
-        std::size_t workerCount);
+        std::size_t workerCount,
+        std::size_t queueSize);
 
     void start();
 

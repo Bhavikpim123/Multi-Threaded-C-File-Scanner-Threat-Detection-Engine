@@ -15,6 +15,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <ctime>
 
 #include <filesystem>
 
@@ -312,11 +313,14 @@ bool SharedMemoryController::scanFile(
         return false;
     }
 
-    if (sem_wait(
-            &region->responseReady) < 0) {
+    timespec timeout{};
+
+    if (clock_gettime(
+            CLOCK_REALTIME,
+            &timeout) < 0) {
 
         std::cerr
-            << "sem_wait() failed: "
+            << "clock_gettime() failed: "
             << std::strerror(errno)
             << '\n';
 
@@ -339,6 +343,47 @@ bool SharedMemoryController::scanFile(
 
         return false;
     }
+
+    timeout.tv_sec += 5;
+
+    if (sem_timedwait(
+            &region->responseReady,
+            &timeout) < 0) {
+
+        if (errno == ETIMEDOUT) {
+
+            std::cerr
+                << "Shared memory IPC timed out.\n";
+
+        } else {
+
+            std::cerr
+                << "sem_timedwait() failed: "
+                << std::strerror(errno)
+                << '\n';
+        }
+
+        kill(childPid, SIGTERM);
+
+        waitpid(
+            childPid,
+            nullptr,
+            0);
+
+        sem_destroy(
+            &region->requestReady);
+
+        sem_destroy(
+            &region->responseReady);
+
+        cleanupSharedMemory(
+            shmFd,
+            region);
+
+        return false;
+    }
+
+
 
     std::string status;
 

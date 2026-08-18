@@ -7,14 +7,16 @@
 #include <filesystem>
 #include <iostream>
 #include <sys/socket.h>
+#include <thread>
 #include <unistd.h>
 
 NetworkThreadPool::NetworkThreadPool(
     std::size_t threadCount,
+    std::size_t queueSize,
     const DetectionStrategy& detectionStrategy)
-    : analyzer_(detectionStrategy),
-      threadCount_(threadCount),
-      running_(false) {
+    : taskQueue_(queueSize),
+      analyzer_(detectionStrategy),
+      threadCount_(threadCount) {
 }
 
 NetworkThreadPool::~NetworkThreadPool() {
@@ -22,6 +24,7 @@ NetworkThreadPool::~NetworkThreadPool() {
 }
 
 void NetworkThreadPool::start() {
+
     if (running_) {
         return;
     }
@@ -30,11 +33,13 @@ void NetworkThreadPool::start() {
 
     workers_.reserve(threadCount_);
 
-    for (std::size_t i = 0; i < threadCount_; ++i) {
+    for (std::size_t i = 0;
+         i < threadCount_;
+         ++i) {
+
         workers_.emplace_back(
             &NetworkThreadPool::workerLoop,
-            this
-        );
+            this);
     }
 
     std::cout
@@ -43,11 +48,36 @@ void NetworkThreadPool::start() {
         << " workers.\n";
 }
 
-void NetworkThreadPool::submit(int clientSocket) {
-    taskQueue_.push(NetworkTask{clientSocket});
+bool NetworkThreadPool::submit(
+    int clientSocket) {
+
+    if (!running_) {
+        metrics_.requestRejected();
+
+        close(clientSocket);
+
+        return false;
+    }
+
+    const bool accepted =
+        taskQueue_.push(
+            NetworkTask{clientSocket});
+
+    if (!accepted) {
+        metrics_.requestRejected();
+
+        close(clientSocket);
+
+        return false;
+    }
+
+    metrics_.requestAccepted();
+
+    return true;
 }
 
 void NetworkThreadPool::stop() {
+
     if (!running_) {
         return;
     }
@@ -63,23 +93,37 @@ void NetworkThreadPool::stop() {
     }
 
     workers_.clear();
+
+    std::cout
+        << "Network thread pool stopped.\n";
 }
 
 void NetworkThreadPool::workerLoop() {
+
+    metrics_.workerStarted();
+
     while (true) {
-        auto task = taskQueue_.pop();
+
+        auto task =
+            taskQueue_.pop();
 
         if (!task.has_value()) {
             break;
         }
 
-        handleClient(task->clientSocket);
+        handleClient(
+            task->clientSocket);
 
-        close(task->clientSocket);
+        close(
+            task->clientSocket);
     }
+
+    metrics_.workerFinished();
 }
 
-void NetworkThreadPool::handleClient(int clientSocket) {
+void NetworkThreadPool::handleClient(
+    int clientSocket) {
+
     char buffer[4096]{};
 
     const ssize_t bytesReceived =
@@ -87,16 +131,19 @@ void NetworkThreadPool::handleClient(int clientSocket) {
             clientSocket,
             buffer,
             sizeof(buffer) - 1,
-            0
-        );
+            0);
 
     if (bytesReceived <= 0) {
+
+        metrics_.requestFailed();
+
         return;
     }
 
     buffer[bytesReceived] = '\0';
 
-    const std::string filePath(buffer);
+    const std::string filePath(
+        buffer);
 
     std::cout
         << "Worker "
@@ -118,8 +165,9 @@ void NetworkThreadPool::handleClient(int clientSocket) {
             clientSocket,
             response.c_str(),
             response.size(),
-            0
-        );
+            0);
+
+        metrics_.requestFailed();
 
         return;
     }
@@ -131,10 +179,10 @@ void NetworkThreadPool::handleClient(int clientSocket) {
     task.fileSize =
         std::filesystem::file_size(
             task.filePath,
-            error
-        );
+            error);
 
     if (error) {
+
         const std::string response =
             "ERROR|Unable to read file size\n";
 
@@ -142,8 +190,9 @@ void NetworkThreadPool::handleClient(int clientSocket) {
             clientSocket,
             response.c_str(),
             response.size(),
-            0
-        );
+            0);
+
+        metrics_.requestFailed();
 
         return;
     }
@@ -154,6 +203,7 @@ void NetworkThreadPool::handleClient(int clientSocket) {
     std::string status;
 
     switch (result.status) {
+
         case ScanStatus::Safe:
             status = "SAFE";
             break;
@@ -174,10 +224,22 @@ void NetworkThreadPool::handleClient(int clientSocket) {
         std::to_string(result.fileSize) +
         "\n";
 
-    send(
-        clientSocket,
-        response.c_str(),
-        response.size(),
-        0
-    );
+    const ssize_t sent =
+        send(
+            clientSocket,
+            response.c_str(),
+            response.size(),
+            0);
+
+    if (sent < 0) {
+        metrics_.requestFailed();
+        return;
+    }
+
+    metrics_.requestCompleted();
+}
+
+const ScannerMetrics&
+NetworkThreadPool::metrics() const {
+    return metrics_;
 }
